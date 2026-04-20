@@ -15,7 +15,7 @@ public class International {
     @Column(columnDefinition = "TEXT")
     private String globalReport;
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String sourceAgency; // e.g., Reuters, AP
 }

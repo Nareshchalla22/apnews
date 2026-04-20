@@ -13,14 +13,19 @@ import lombok.Data;
 @Table(name = "cat_sports")
 @Data
 public class Sports {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String matchTitle;
+
     @Column(columnDefinition = "TEXT")
     private String summary;
+
     private String scoreUpdate;
+
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }

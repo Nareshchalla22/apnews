@@ -16,7 +16,7 @@ public class National {
     @Column(columnDefinition = "TEXT")
     private String description;
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String date;
 }

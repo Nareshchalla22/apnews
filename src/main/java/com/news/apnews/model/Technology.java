@@ -21,6 +21,6 @@ public class Technology {
     private String techReview;
     private String version;
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }

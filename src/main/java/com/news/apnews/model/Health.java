@@ -22,6 +22,6 @@ public class Health {
     private String medicalAdvice;
     private String doctorConsultant;
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }
