@@ -3,6 +3,7 @@ package com.news.apnews.controller;
 import com.news.apnews.model.*;
 import com.news.apnews.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,8 +11,7 @@ import java.util.List;
 @RestController
 // @CrossOrigin(origins = "http://localhost:5173")
 @CrossOrigin(origins = {
-    "https://flash-news-ui.vercel.app",
-    "http://localhost:5173"
+        "https://flash-news-ui.vercel.app", "http://localhost:5173"
 })
 @RequestMapping("/api")
 public class CategoryMenuController {
@@ -46,8 +46,13 @@ public class CategoryMenuController {
     }
 
     @PostMapping("/global")
-    public Global addGlobal(@RequestBody Global news) {
-        return globalRepo.save(news);
+    public ResponseEntity<Global> addGlobal(@RequestBody Global news) {
+        // Manually checking for empty fields before saving prevents DB crashes
+        if (news.getTitle() == null || news.getTitle().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Global savedNews = globalRepo.save(news);
+        return ResponseEntity.ok(savedNews);
     }
 
     @PutMapping("/global/{id}")
@@ -262,5 +267,5 @@ public class CategoryMenuController {
     public Technology addTech(@RequestBody Technology news) {
         return technologyRepo.save(news);
     }
-    
+
 }

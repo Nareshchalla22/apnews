@@ -1,48 +1,37 @@
 package com.news.apnews.controller;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import com.news.apnews.model.Ticker;
 import com.news.apnews.repository.TickerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:5173")
-@CrossOrigin(origins = {
-    "https://flash-news-ui.vercel.app",
-    "http://localhost:5173"
-})public class TickerController {
+@RequestMapping("/api/ticker")
+@CrossOrigin(origins = {"https://flash-news-ui.vercel.app", "http://localhost:5173"})
+public class TickerController {
 
     @Autowired
-    private TickerRepository tickerRepository;
+    private TickerRepository repo;
 
-    // 1. Fetch all (Matches newsService.getTicker)
     @GetMapping("/all")
-    public List<Ticker> getAllMessages() {
-        return tickerRepository.findAll();
+    public List<Ticker> getAll() {
+        return repo.findAll();
     }
 
-    // 2. Create (Matches newsService.createTicker)
     @PostMapping("/create")
-    public ResponseEntity<Ticker> createTicker(@RequestBody Ticker ticker) {
-        // Defaulting new tickers to active if not specified
-        if (ticker.getPriority() == null) ticker.setPriority("Medium");
-        Ticker saved = tickerRepository.save(ticker);
-        return ResponseEntity.ok(saved);
+    public Ticker create(@RequestBody Ticker ticker) {
+        // Set default if not provided
+        if (ticker.getPriority() == null) ticker.setPriority("High");
+        return repo.save(ticker);
     }
 
-    // 3. Update (Matches newsService.updateTicker)
     @PutMapping("/update/{id}")
-    public ResponseEntity<Ticker> updateTicker(@PathVariable Long id, @RequestBody Ticker tickerDetails) {
-        Ticker ticker = tickerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticker not found with id: " + id));
-
-        ticker.setMessage(tickerDetails.getMessage());
-        ticker.setActive(tickerDetails.isActive());
-        ticker.setPriority(tickerDetails.getPriority());
-
-        Ticker updatedTicker = tickerRepository.save(ticker);
-        return ResponseEntity.ok(updatedTicker);
+    public Ticker update(@PathVariable Long id, @RequestBody Ticker updated) {
+        Ticker t = repo.findById(id).orElseThrow(() -> new RuntimeException("Ticker not found"));
+        t.setMessage(updated.getMessage());
+        t.setActive(updated.isActive());
+        return repo.save(t);
     }
 }
