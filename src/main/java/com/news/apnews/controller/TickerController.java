@@ -8,9 +8,9 @@ import com.news.apnews.model.Ticker;
 import com.news.apnews.repository.TickerRepository;
 
 @RestController
-//@RequestMapping("/api")
 //@CrossOrigin(origins = "http://localhost:5173")
-@CrossOrigin(origins = "https://flash-news-ui.vercel.app/") // Allow React frontend
+@CrossOrigin(origins = "https://flash-news-ui.vercel.app/")
+ @RequestMapping("/api")
 public class TickerController {
 
     @Autowired

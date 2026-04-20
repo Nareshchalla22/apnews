@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+// @CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://flash-news-ui.vercel.app/")
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryMenuController {
 
     @Autowired
