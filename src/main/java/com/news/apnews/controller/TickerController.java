@@ -9,7 +9,7 @@ import com.news.apnews.repository.TickerRepository;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:5173")
-@CrossOrigin(origins = "https://flash-news-ui.vercel.app/")
+@CrossOrigin(origins = "https://flash-news-ui.vercel.app")
  @RequestMapping("/api")
 public class TickerController {
 
