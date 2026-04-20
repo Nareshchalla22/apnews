@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ticker")
-@CrossOrigin(origins = {"https://flash-news-ui.vercel.app", "http://localhost:5173"})
+@RequestMapping("/api")
+// Note: @CrossOrigin removed here because it's now handled globally in WebConfig
 public class TickerController {
 
     private static final Logger logger = LoggerFactory.getLogger(TickerController.class);
@@ -29,9 +29,11 @@ public class TickerController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody Ticker ticker) {
         try {
-            if (ticker.getPriority() == null) ticker.setPriority("High");
+            if (ticker.getPriority() == null) {
+                ticker.setPriority("High");
+            }
             Ticker saved = repo.save(ticker);
-            logger.info("Ticker created successfully: {}", saved.getId());
+            logger.info("Ticker created successfully with ID: {}", saved.getId());
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
             logger.error("FAILED to create ticker: {}", e.getMessage());
@@ -50,6 +52,11 @@ public class TickerController {
             t.setMessage(updated.getMessage());
             t.setActive(updated.isActive());
             
+            // If you have priority in your model, update it here too
+            if (updated.getPriority() != null) {
+                t.setPriority(updated.getPriority());
+            }
+            
             Ticker saved = repo.save(t);
             logger.info("Ticker ID {} updated successfully", id);
             return ResponseEntity.ok(saved);
@@ -58,4 +65,5 @@ public class TickerController {
             return ResponseEntity.internalServerError().body("Update Error: " + e.getMessage());
         }
     }
+    
 }

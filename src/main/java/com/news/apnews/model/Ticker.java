@@ -16,6 +16,5 @@ public class Ticker {
     private Long id;
     private String message;
     private boolean isActive;
-    private String text;
     private String priority; // High, Medium, Low
 }
