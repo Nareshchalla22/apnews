@@ -9,7 +9,10 @@ import java.util.List;
 
 @RestController
 // @CrossOrigin(origins = "http://localhost:5173")
-@CrossOrigin(origins = "https://flash-news-ui.vercel.app")
+@CrossOrigin(origins = {
+    "https://flash-news-ui.vercel.app",
+    "http://localhost:5173"
+})
 @RequestMapping("/api")
 public class CategoryMenuController {
 
