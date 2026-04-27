@@ -18,7 +18,7 @@ public class ApnewsApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApnewsApplication.class, args);
     }
-
+    
     @Bean
     CommandLineRunner seedAdmin(AppUserRepository repo, PasswordEncoder encoder) {
         return args -> {
