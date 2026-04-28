@@ -79,10 +79,7 @@ public class SecurityConfig {
         // allowCredentials(true) — allowedOrigins("*") does NOT.
         // This covers your production URL + all Vercel preview deployments.
         config.setAllowedOriginPatterns(List.of(
-            "https://flash-news-ui.vercel.app",   // production
-            "https://*.vercel.app",               // Vercel preview URLs
             "http://localhost:*",                 // local dev any port
-            "http://127.0.0.1:*"  ,                // local dev alternate
             "https://main.d1sgj1iof00zuq.amplifyapp.com/"
         ));
 
