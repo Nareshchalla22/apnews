@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.news.apnews.model.AppUser;
 import com.news.apnews.repository.AppUserRepository;
+import com.news.apnews.repository.TickerRepository;
 
 @SpringBootApplication
 @EntityScan("com.news.apnews.model")
@@ -18,7 +19,7 @@ public class ApnewsApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApnewsApplication.class, args);
     }
-    
+
     @Bean
     CommandLineRunner seedAdmin(AppUserRepository repo, PasswordEncoder encoder) {
         return args -> {
@@ -31,6 +32,14 @@ public class ApnewsApplication {
                 repo.save(admin);
                 System.out.println("✅ Admin user seeded: admin / AP13Admin@2026");
             }
+        };
+
+    }
+
+    @Bean
+    CommandLineRunner fixData(TickerRepository tickerRepo) {
+        return args -> {
+            tickerRepo.fixNullActiveValues();
         };
     }
 }

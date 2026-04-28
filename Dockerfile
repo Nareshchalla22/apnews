@@ -1,37 +1,14 @@
-# ════════════════════════════════════════════════════════════════════
-# AP13 NEWS — Dockerfile (fixed)
-# ════════════════════════════════════════════════════════════════════
-
-# ── Stage 1: Build ───────────────────────────────────────────────────
+# Step 1: Build
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY pom.xml .
-# Download dependencies first (cached layer — speeds up rebuilds)
-RUN mvn dependency:go-offline -B
-COPY src ./src
-RUN mvn clean package -DskipTests -B
+COPY . .
+RUN mvn clean package -DskipTests
 
-# ── Stage 2: Run ─────────────────────────────────────────────────────
-FROM eclipse-temurin:17-jre-jammy
+# Step 2: Run
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-
+# We use a specific wildcard to find your JAR
 COPY --from=build /app/target/*.jar app.jar
-
-# Health check for Render/EC2
-HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
-
 EXPOSE 8080
-
-# ERROR WAS HERE: ${PORT:8080} — colon without dash is NOT valid shell syntax
-# in a Dockerfile ENTRYPOINT exec form. The JVM received the literal
-# string "${PORT:8080}" instead of the actual port number.
-# FIX: Use ${PORT:-8080} — dash before default value is correct shell syntax.
-ENTRYPOINT ["sh", "-c", "java \
-  -Xms128m \
-  -Xmx450m \
-  -XX:+UseContainerSupport \
-  -XX:MaxRAMPercentage=70.0 \
-  -Dserver.port=${PORT:-8080} \
-  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-default} \
-  -jar app.jar"]
+# The -Dserver.port is a backup to ensure Spring Boot finds Render's port
+ENTRYPOINT ["java", "-Xmx512m", "-Dserver.port=${PORT:8080}", "-jar", "app.jar"]

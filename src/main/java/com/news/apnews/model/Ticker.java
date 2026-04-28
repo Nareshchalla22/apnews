@@ -1,11 +1,14 @@
 package com.news.apnews.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "cat_ticker")
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true) 
 public class Ticker {
 
     @Id
@@ -14,21 +17,15 @@ public class Ticker {
 
     private String message;
 
-    // ERROR WAS HERE: Field was named 'isActive' (boolean).
-    // Lombok generates isActive() getter for boolean fields named 'isActive'
-    // but JPA query 'findByIsActiveTrueOrderByPriorityDesc' cannot resolve it.
-    // FIX: rename to 'active' — Lombok generates isActive() getter automatically
-    // and JPA query 'findByActiveTrueOrderByPriorityDesc' works correctly.
-    private boolean active;
+    // FIX: Use Boolean (wrapper class) instead of boolean (primitive)
+    // Boolean can hold null values, boolean cannot
+    @Column(name = "active", columnDefinition = "boolean default false")
+    private Boolean active = false;
 
-    private String priority; // High, Medium, Low
+    private String priority;
 
-    // Convenience method so existing code calling isActive() still works
+    // Helper method — returns false if null
     public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+        return Boolean.TRUE.equals(active);
     }
 }
