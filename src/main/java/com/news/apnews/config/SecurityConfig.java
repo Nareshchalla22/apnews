@@ -82,7 +82,8 @@ public class SecurityConfig {
             "https://flash-news-ui.vercel.app",   // production
             "https://*.vercel.app",               // Vercel preview URLs
             "http://localhost:*",                 // local dev any port
-            "http://127.0.0.1:*"                  // local dev alternate
+            "http://127.0.0.1:*"  ,                // local dev alternate
+            "https://main.d1sgj1iof00zuq.amplifyapp.com/"
         ));
 
         config.setAllowedMethods(List.of(
