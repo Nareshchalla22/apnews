@@ -80,7 +80,7 @@ public class SecurityConfig {
         // This covers your production URL + all Vercel preview deployments.
         config.setAllowedOriginPatterns(List.of(
             "http://localhost:*",                 // local dev any port
-            "https://main.d1sgj1iof00zuq.amplifyapp.com/"
+            "https://*.amplifyapp.com"
         ));
 
         config.setAllowedMethods(List.of(
