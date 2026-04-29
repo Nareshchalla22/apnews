@@ -1,5 +1,6 @@
 package com.news.apnews.controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.news.apnews.model.Ticker;
 import com.news.apnews.repository.TickerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,33 @@ public class TickerController {
 
     // ── GET ALL ───────────────────────────────────────────────────────
     @GetMapping("/all")
-    public ResponseEntity<List<Ticker>> getAll() {
-        return ResponseEntity.ok(repo.findAll());
+    public ResponseEntity<?> getAll() {
+        try {
+            List<Ticker> tickers = repo.findAll();
+            // Fix null active values
+            tickers.forEach(t -> {
+                if (t.getActive() == null) t.setActive(false);
+            });
+            return ResponseEntity.ok(tickers);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(Map.of("message", e.getMessage()));
+        }
     }
 
     // ── GET ACTIVE ONLY ───────────────────────────────────────────────
     @GetMapping("/all/active")
-    public ResponseEntity<List<Ticker>> getActive() {
-        return ResponseEntity.ok(repo.findByActiveTrueOrderByPriorityDesc());
+    public ResponseEntity<?> getActive() {
+        try {
+            return ResponseEntity.ok(
+                repo.findAll().stream()
+                    .filter(t -> Boolean.TRUE.equals(t.getActive()))
+                    .toList()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(Map.of("message", e.getMessage()));
+        }
     }
 
     // ── GET BY ID ─────────────────────────────────────────────────────
@@ -46,6 +66,9 @@ public class TickerController {
             }
             if (ticker.getPriority() == null || ticker.getPriority().isBlank()) {
                 ticker.setPriority("High");
+            }
+            if (ticker.getActive() == null) {
+                ticker.setActive(false);
             }
             return ResponseEntity.ok(repo.save(ticker));
 
@@ -69,7 +92,9 @@ public class TickerController {
             if (updated.getPriority() != null) {
                 t.setPriority(updated.getPriority());
             }
-            t.setActive(updated.isActive());
+            t.setActive(
+                updated.getActive() != null ? updated.getActive() : false
+            );
 
             return ResponseEntity.ok(repo.save(t));
 
@@ -81,14 +106,14 @@ public class TickerController {
         }
     }
 
-    // ── TOGGLE ACTIVE/INACTIVE ────────────────────────────────────────
+    // ── TOGGLE ────────────────────────────────────────────────────────
     @PatchMapping("/ticker/{id}/toggle")
     public ResponseEntity<?> toggle(@PathVariable Long id) {
         try {
             Ticker t = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticker not found"));
 
-            t.setActive(!t.isActive());
+            t.setActive(!Boolean.TRUE.equals(t.getActive()));
             Ticker saved = repo.save(t);
 
             return ResponseEntity.ok(Map.of(

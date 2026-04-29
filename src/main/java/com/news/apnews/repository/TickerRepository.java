@@ -14,7 +14,6 @@ public interface TickerRepository extends JpaRepository<Ticker, Long> {
 
     List<Ticker> findByActiveTrueOrderByPriorityDesc();
 
-    // Fix all NULL active values to false
     @Modifying
     @Transactional
     @Query("UPDATE Ticker t SET t.active = false WHERE t.active IS NULL")
