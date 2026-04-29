@@ -43,6 +43,7 @@ public class SecurityConfig {
 
                 // ── Public auth endpoints ─────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll() // Allow actuator for health checks
 
                 // ── Public GET: news reading ──────────────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
