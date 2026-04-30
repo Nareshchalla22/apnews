@@ -31,44 +31,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-            .cors(cors -> cors.configurationSource(corsSource()))
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
+                .cors(cors -> cors.configurationSource(corsSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
 
-                // ── FIX #1: Allow ALL OPTIONS preflight requests ──────────
-                // Browser sends OPTIONS before every POST/PUT/DELETE.
-                // Without this, CORS preflight fails → login never fires.
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // ── FIX #1: Allow ALL OPTIONS preflight requests ──────────
+                        // Browser sends OPTIONS before every POST/PUT/DELETE.
+                        // Without this, CORS preflight fails → login never fires.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // ── Public auth endpoints ─────────────────────────────────
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll() // Allow actuator for health checks
+                        // ── Public auth endpoints ─────────────────────────────────
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll() // Allow actuator for health checks
 
-                // ── Public GET: news reading ──────────────────────────────
-                .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/national").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/state").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/business").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/crime").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/entertainment").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/sports").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/politics").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/travel").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/technology").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
+                        // ── Public GET: news reading ──────────────────────────────
+                        .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/national").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/state").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/business").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/crime").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/entertainment").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/sports").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/politics").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/travel").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/technology").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
 
-                // ── Reporter registration is public ───────────────────────
-                .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
+                        // ── Reporter registration is public ───────────────────────
+                        .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
 
-                // ── Everything else requires login ────────────────────────
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+                        // ── Everything else requires login ────────────────────────
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
@@ -80,10 +79,12 @@ public class SecurityConfig {
         // allowCredentials(true) — allowedOrigins("*") does NOT.
         // This covers your production URL + all Vercel preview deployments.
         config.setAllowedOriginPatterns(List.of(
-            "http://localhost:*",                 // local dev any port
-            "https://*.amplifyapp.com",
             "https://main.d1sgj1iof00zuq.amplifyapp.com",
-             "https://*.ap13news.com"
+            "https://*.amplifyapp.com",
+            "https://*.vercel.app",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.ap13news.com"
         ));
 
         config.setAllowedMethods(List.of(
