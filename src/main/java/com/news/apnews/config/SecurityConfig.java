@@ -81,10 +81,9 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
             "https://main.d1sgj1iof00zuq.amplifyapp.com",
             "https://*.amplifyapp.com",
-            "https://*.vercel.app",
             "http://localhost:*",
             "http://127.0.0.1:*",
-            "https://*.ap13news.com"
+            "https://18.61.229.102.nip.io"
         ));
 
         config.setAllowedMethods(List.of(
