@@ -82,7 +82,8 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
             "http://localhost:*",                 // local dev any port
             "https://*.amplifyapp.com",
-            "https://main.d1sgj1iof00zuq.amplifyapp.com"
+            "https://main.d1sgj1iof00zuq.amplifyapp.com",
+             "https://*.ap13news.com"
         ));
 
         config.setAllowedMethods(List.of(
