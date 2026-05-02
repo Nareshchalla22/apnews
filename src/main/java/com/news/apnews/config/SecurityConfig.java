@@ -31,53 +31,74 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.configurationSource(corsSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+            .cors(cors -> cors.configurationSource(corsSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
 
-                        // ── FIX #1: Allow ALL OPTIONS preflight requests ──────────
-                        // Browser sends OPTIONS before every POST/PUT/DELETE.
-                        // Without this, CORS preflight fails → login never fires.
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // ── Allow ALL OPTIONS preflight requests ──────────────────────
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ── Public auth endpoints ─────────────────────────────────
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll() // Allow actuator for health checks
+                // ── Public auth endpoints ─────────────────────────────────────
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
 
-                        // ── Public GET: news reading ──────────────────────────────
-                        .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/national").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/state").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/business").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/crime").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/entertainment").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/sports").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/politics").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/travel").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/technology").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
+                // ── Public GET: news reading ──────────────────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/national").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/state").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/business").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/crime").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/entertainment").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sports").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/politics").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/travel").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/technology").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
 
-                        // ── Reporter registration is public ───────────────────────
-                        .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
+                // ── Public: reporter application submit ───────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
 
-                        // ── Everything else requires login ────────────────────────
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                // ── REPORTER role: can POST (create) and PUT (update) news ────
+                // Reporters can publish news but cannot delete or manage users
+                .requestMatchers(HttpMethod.POST,
+                    "/api/global", "/api/national", "/api/state",
+                    "/api/business", "/api/crime", "/api/entertainment",
+                    "/api/sports", "/api/health", "/api/politics",
+                    "/api/travel", "/api/technology",
+                    "/api/create"
+                ).hasAnyRole("ADMIN", "REPORTER")
+
+                .requestMatchers(HttpMethod.PUT,
+                    "/api/global/**", "/api/national/**", "/api/state/**",
+                    "/api/business/**", "/api/crime/**", "/api/entertainment/**",
+                    "/api/sports/**", "/api/health/**", "/api/politics/**",
+                    "/api/travel/**", "/api/technology/**",
+                    "/api/update/**"
+                ).hasAnyRole("ADMIN", "REPORTER")
+
+                // ── DELETE and user management: ADMIN only ────────────────────
+                .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/activate-reporter/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/reporter-application/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/reporter-application/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/reporter-application/**").hasRole("ADMIN")
+
+                // ── Everything else requires login ────────────────────────────
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
     @Bean
     public CorsConfigurationSource corsSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // ── FIX #2: Use allowedOriginPatterns instead of allowedOrigins ───
-        // allowedOriginPatterns supports wildcards and works with
-        // allowCredentials(true) — allowedOrigins("*") does NOT.
-        // This covers your production URL + all Vercel preview deployments.
         config.setAllowedOriginPatterns(List.of(
             "https://main.d1sgj1iof00zuq.amplifyapp.com",
             "https://*.amplifyapp.com",
@@ -85,20 +106,12 @@ public class SecurityConfig {
             "http://127.0.0.1:*",
             "https://18.61.229.102.nip.io"
         ));
-
         config.setAllowedMethods(List.of(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
         ));
-
-        // Allow all headers including Authorization
         config.setAllowedHeaders(List.of("*"));
-
-        // Expose Authorization header so frontend can read it
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));
-
         config.setAllowCredentials(true);
-
-        // Cache preflight for 1 hour — reduces OPTIONS round trips
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

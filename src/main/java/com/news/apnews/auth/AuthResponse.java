@@ -13,10 +13,12 @@ public class AuthResponse {
 
     @Data
     @AllArgsConstructor
-    @NoArgsConstructor   // ← Critical: Jackson needs this to deserialize inner class
+    @NoArgsConstructor
     public static class UserInfo {
-        private Long id;
+        private Long   id;
         private String username;
         private String role;
+        private String fullName;   // reporter's real name
+        private String planName;   // Field Reporter | Senior Correspondent | Bureau Correspondent
     }
 }
