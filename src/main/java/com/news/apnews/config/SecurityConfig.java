@@ -18,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.Customizer;
+
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+            .cors(Customizer.withDefaults())
             .cors(cors -> cors.configurationSource(corsSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -102,9 +105,9 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
             "https://main.d1sgj1iof00zuq.amplifyapp.com",
             "https://*.amplifyapp.com",
-            // "http://localhost:*",
-            // "http://127.0.0.1:*",
-            // //"https://18.61.229.102.nip.io",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://18.61.229.102.nip.io",
             "https://ap13news.in",
             "https://www.ap13news.in"
         ));
