@@ -107,7 +107,6 @@ public class SecurityConfig {
             "https://*.amplifyapp.com",
             "http://localhost:*",
             "http://127.0.0.1:*",
-            "https://18.61.229.102.nip.io",
             "https://ap13news.in",
             "https://www.ap13news.in"
         ));
