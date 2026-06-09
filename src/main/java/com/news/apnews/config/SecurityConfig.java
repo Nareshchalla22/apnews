@@ -103,10 +103,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-            "https://main.d1sgj1iof00zuq.amplifyapp.com",
-            "https://*.amplifyapp.com",
+            // "https://main.d1sgj1iof00zuq.amplifyapp.com",
+            // "https://*.amplifyapp.com",
             "http://localhost:*",
-            "http://127.0.0.1:*",
+            "https://*.vercel.app",
             "https://ap13news.in",
             "https://www.ap13news.in"
         ));
