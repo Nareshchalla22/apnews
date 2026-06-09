@@ -108,7 +108,8 @@ public class SecurityConfig {
             "http://localhost:*",
             "https://*.vercel.app",
             "https://ap13news.in",
-            "https://www.ap13news.in"
+            "https://www.ap13news.in",
+            "https://api.ap13news.in"
         ));
         config.setAllowedMethods(List.of(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
