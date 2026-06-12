@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class MetaController {
 
     @Autowired
-    private NewsRepository newsRepository; // adjust
+    private NewsRepository newsRepository; // adjust to your repo
 
     @GetMapping("/category/{cat}/{id}")
     public ResponseEntity<String> getMeta(
@@ -21,9 +21,9 @@ public class MetaController {
             @PathVariable String id) {
 
         String title = "AP13 News";
-        String desc  = "Latest Telugu News - AP13 News Network";
-        String image = "https://ap13news.in/og-default.jpg"; // fallback image
+        String desc  = "Latest breaking news from Andhra Pradesh & Telangana - AP13 News";
         String url   = "https://ap13news.in/category/" + cat + "/" + id;
+        String image = "https://ap13news.in/og-default.jpg"; // fallback
 
         try {
             Long newsId = Long.parseLong(id);
@@ -32,19 +32,20 @@ public class MetaController {
             if (item != null) {
                 title = item.getTitle() != null ? item.getTitle() : title;
                 desc  = item.getDescription() != null
-                        ? item.getDescription().length() > 200
+                        ? (item.getDescription().length() > 200
                             ? item.getDescription().substring(0, 200) + "..."
-                            : item.getDescription()
+                            : item.getDescription())
                         : desc;
-                image = item.getImageUrl() != null && !item.getImageUrl().isEmpty()
-                        ? item.getImageUrl()
-                        : image;
+
+                // Use S3 URL directly — already a real https:// URL
+                if (item.getImageUrl() != null && item.getImageUrl().startsWith("http")) {
+                    image = item.getImageUrl();
+                }
             }
         } catch (Exception e) {
-            // fallback values used
+            // fallback values stay
         }
 
-        // Escape quotes for HTML safety
         title = title.replace("\"", "&quot;");
         desc  = desc.replace("\"", "&quot;");
 
@@ -56,6 +57,7 @@ public class MetaController {
             "<meta property=\"og:title\" content=\"" + title + "\"/>\n" +
             "<meta property=\"og:description\" content=\"" + desc + "\"/>\n" +
             "<meta property=\"og:image\" content=\"" + image + "\"/>\n" +
+            "<meta property=\"og:image:secure_url\" content=\"" + image + "\"/>\n" +
             "<meta property=\"og:image:width\" content=\"1200\"/>\n" +
             "<meta property=\"og:image:height\" content=\"630\"/>\n" +
             "<meta property=\"og:url\" content=\"" + url + "\"/>\n" +
