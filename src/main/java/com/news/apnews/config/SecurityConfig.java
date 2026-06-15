@@ -63,8 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+
                 // ── Public: reporter application submit ───────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
 
@@ -109,7 +108,7 @@ public class SecurityConfig {
                 "https://*.amplifyapp.com",
                 "https://ap13news.in",
                 "https://www.ap13news.in",
-                "https://api.ap13news.in",      // ← Add this
+                "https://*.ap13news.in",      // ← Add this
                 "https://*.vercel.app",          // ← Add this
                 "http://localhost:5173",
                 "http://localhost:*",
