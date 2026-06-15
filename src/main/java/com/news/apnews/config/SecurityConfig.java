@@ -63,7 +63,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/press-pass").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/press-pass/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
-
+                .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 // ── Public: reporter application submit ───────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
 
