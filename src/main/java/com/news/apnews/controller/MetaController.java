@@ -23,7 +23,7 @@ public class MetaController {
         String title = "AP13 News";
         String desc  = "Latest breaking news from Andhra Pradesh & Telangana - AP13 News";
         String url   = "https://ap13news.in/category/" + cat + "/" + id;
-        String image = "https://ap13news.in/og-default.jpg"; // fallback
+        String image = "https://ap13news.in/og-default.jpg";
 
         try {
             Long newsId = Long.parseLong(id);
