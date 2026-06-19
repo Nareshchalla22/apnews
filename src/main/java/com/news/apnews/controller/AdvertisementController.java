@@ -4,6 +4,7 @@ import com.news.apnews.model.Advertisement;
 import com.news.apnews.repository.AdvertisementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class AdvertisementController {
 
     // ── GET ACTIVE (public — for homepage display) ────────────────────────
     @GetMapping("/active")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Advertisement>> getActive() {
         return ResponseEntity.ok(adRepo.findActiveAndScheduled(LocalDateTime.now()));
     }
