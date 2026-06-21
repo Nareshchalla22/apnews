@@ -19,19 +19,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private AppUserRepository userRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
 
         AppUser appUser = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found: " + username));
 
         if (!appUser.isEnabled()) {
-            throw new UsernameNotFoundException("User account is disabled: " + username);
+            throw new UsernameNotFoundException(
+                    "User account is disabled: " + username);
         }
 
-        // Normalise role — Spring Security expects ROLE_ prefix
-        String role = appUser.getRole();
-        String springRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        // Normalise role — Spring Security needs ROLE_ prefix
+        String rawRole    = appUser.getRole();
+        String springRole = (rawRole != null && rawRole.startsWith("ROLE_"))
+                ? rawRole.toUpperCase()
+                : "ROLE_" + (rawRole != null ? rawRole.toUpperCase() : "VIEWER");
 
         return User.builder()
                 .username(appUser.getUsername())
