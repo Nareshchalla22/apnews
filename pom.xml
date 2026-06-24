@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.11.5</jjwt.version>
         <aws.sdk.version>2.25.26</aws.sdk.version>
     </properties>
 
@@ -71,10 +71,6 @@
         </dependency>
 
         <!-- ── JWT ── -->
-        <properties>
-            <jjwt.version>0.11.5</jjwt.version>
-        </properties>
-
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -116,42 +112,7 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- ══════════════════════════════════════════════════════════════════════
-     ADD THESE DEPENDENCIES to your pom.xml inside <dependencies> tag
-     if they are not already there.
-     ══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- JWT — JJWT library (all 3 required together) -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Spring Boot Security (should already be present) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <!-- Lombok (should already be present) -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
         <!-- ERROR WAS HERE: spring-dotenv removed — caused build failure -->
         <!-- Use environment variables directly instead (already done) -->
 

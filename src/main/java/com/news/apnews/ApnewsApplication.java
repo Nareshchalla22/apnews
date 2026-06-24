@@ -2,7 +2,6 @@ package com.news.apnews;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -12,7 +11,7 @@ import com.news.apnews.model.AppUser;
 import com.news.apnews.repository.AppUserRepository;
 import com.news.apnews.repository.TickerRepository;
 
-@SpringBootApplication
+@org.springframework.boot.autoconfigure.SpringBootApplication
 @EntityScan("com.news.apnews.model")
 @EnableJpaRepositories("com.news.apnews.repository")
 public class ApnewsApplication {
