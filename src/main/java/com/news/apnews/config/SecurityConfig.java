@@ -1,16 +1,15 @@
 package com.news.apnews.config;
 
 import com.news.apnews.auth.JwtAuthFilter;
-import com.news.apnews.auth.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,136 +22,126 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
 
-    // ── Filter chain ───────────────────────────────────────────────────────
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+        return http
+            .cors(cors -> cors.configurationSource(corsSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
 
-                        // ── Public auth ──────────────────────────────────────────────
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/register")
-                        .permitAll()
+                // Allow ALL OPTIONS preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ── Public reporter application ──────────────────────────────
-                        .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
+                // Public auth
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
 
-                        // ── Public ticker ────────────────────────────────────────────
-                        .requestMatchers(HttpMethod.GET, "/api/all", "/api/all/active").permitAll()
+                // Public GET news
+                .requestMatchers(HttpMethod.GET, "/api/global").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/global/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/national").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/national/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/state").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/state/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/business").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/business/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/crime").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/crime/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/entertainment").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/entertainment/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sports").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/sports/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/politics").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/politics/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/travel").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/travel/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/technology").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/technology/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/all/**").permitAll()
 
-                        // ── Public news (GET only) ───────────────────────────────────
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/global/**",
-                                "/api/national/**",
-                                "/api/state/**",
-                                "/api/business/**",
-                                "/api/crime/**",
-                                "/api/entertainment/**",
-                                "/api/sports/**",
-                                "/api/health/**",
-                                "/api/politics/**",
-                                "/api/travel/**",
-                                "/api/trending/**")
-                        .permitAll()
-                        // ── Authenticated media upload (logged-in users only) ──
-                        .requestMatchers(HttpMethod.POST, "/api/media/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/media/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/media/**").permitAll()
+                // Public ads
+                .requestMatchers(HttpMethod.GET, "/api/ads/active").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/ads/placement/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/ads/type/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/ads/*/impression").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/ads/*/click").permitAll()
 
-                        // ── Public meta tags (WhatsApp/Telegram bots) ────────────────
-                        .requestMatchers("/category/**").permitAll()
+                // Public reporter application submit
+                .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
 
-                        // ── Public ads — active ads for homepage display ─────────────
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/ads/active",
-                                "/api/ads/placement/**",
-                                "/api/ads/type/**")
-                        .permitAll()
+                // REPORTER + ADMIN: publish/edit news
+                .requestMatchers(HttpMethod.POST,
+                    "/api/global", "/api/national", "/api/state",
+                    "/api/business", "/api/crime", "/api/entertainment",
+                    "/api/sports", "/api/health", "/api/politics",
+                    "/api/travel", "/api/technology", "/api/create"
+                ).hasAnyRole("ADMIN", "REPORTER")
 
-                        // ── Public ad tracking (click/impression) ─────────────────────
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/ads/*/impression",
-                                "/api/ads/*/click")
-                        .permitAll()
+                .requestMatchers(HttpMethod.PUT,
+                    "/api/global/**", "/api/national/**", "/api/state/**",
+                    "/api/business/**", "/api/crime/**", "/api/entertainment/**",
+                    "/api/sports/**", "/api/health/**", "/api/politics/**",
+                    "/api/travel/**", "/api/technology/**", "/api/update/**"
+                ).hasAnyRole("ADMIN", "REPORTER")
 
-                        // ── Reporter: publish news ────────────────────────────────────
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/global/**", "/api/national/**", "/api/state/**",
-                                "/api/business/**", "/api/crime/**", "/api/entertainment/**",
-                                "/api/sports/**", "/api/health/**", "/api/politics/**")
-                        .hasAnyRole("REPORTER", "ADMIN")
+                // ADMIN only
+                .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/users/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/activate-reporter/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,  "/api/reporter-application/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,  "/api/reporter-application/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/reporter-application/**").hasRole("ADMIN")
+                .requestMatchers("/api/ads/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.PUT,
-                                "/api/global/**", "/api/national/**", "/api/state/**",
-                                "/api/business/**", "/api/crime/**", "/api/entertainment/**",
-                                "/api/sports/**", "/api/health/**", "/api/politics/**")
-                        .hasAnyRole("REPORTER", "ADMIN")
-
-                        // ── Admin only ────────────────────────────────────────────────
-                        .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/activate-reporter/**").hasRole("ADMIN")
-                        .requestMatchers("/api/reporter-application/**").hasRole("ADMIN")
-                        .requestMatchers("/api/create", "/api/update/**", "/api/ticker/**").hasRole("ADMIN")
-
-                        // ── Ads CRUD — admin only ─────────────────────────────────────
-                        .requestMatchers("/api/ads/**").hasRole("ADMIN")
-
-                        // ── Everything else requires authentication ────────────────────
-                        .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
-    // ── Auth provider — wires UserDetailsService + PasswordEncoder ─────────
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    // ── CORS ───────────────────────────────────────────────────────────────
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-                "https://ap13news.in",
-                "https://www.ap13news.in",
-                "https://*.amplifyapp.com",
-                "http://localhost:*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+            "https://ap13news.in",
+            "https://www.ap13news.in",
+            "https://*.amplifyapp.com",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://18.61.229.102.nip.io"   // keep for backward compat
+        ));
+        config.setAllowedMethods(List.of(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
+        ));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
-    // ── Beans ──────────────────────────────────────────────────────────────
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
         return config.getAuthenticationManager();
     }
 }
