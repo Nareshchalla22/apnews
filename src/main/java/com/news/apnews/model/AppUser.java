@@ -20,26 +20,10 @@ public class AppUser {
     private String username;
 
     @Column(nullable = false)
-    private String password;       // BCrypt encoded
+    private String password;
 
     @Column(nullable = false)
-    private String role;           // ADMIN | REPORTER | EDITOR | VIEWER
+    private String role;
 
     private boolean enabled = true;
-
-    // ── Reporter profile fields ───────────────────────────────────────────
-    // Added for reporter ID card, dashboard display, and press credentials.
-    // These columns are added via spring.jpa.hibernate.ddl-auto=update
-    // so no manual migration needed.
-
-    private String fullName;       // Reporter's real name
-    private String email;          // Contact email
-    private String phone;          // Contact phone
-
-    private String planId;         // basic | pro | elite
-    private String planName;       // Field Reporter | Senior Correspondent | Bureau Correspondent
-
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String photoUrl;       // Profile photo — S3 URL or base64
 }
