@@ -1,9 +1,15 @@
 package com.news.apnews.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "app_users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AppUser {
 
     @Id
@@ -14,52 +20,26 @@ public class AppUser {
     private String username;
 
     @Column(nullable = false)
-    private String password;
+    private String password;       // BCrypt encoded
 
     @Column(nullable = false)
-    private String role;
+    private String role;           // ADMIN | REPORTER | EDITOR | VIEWER
 
     private boolean enabled = true;
 
-    public AppUser() {}
+    // ── Reporter profile fields ───────────────────────────────────────────
+    // Added for reporter ID card, dashboard display, and press credentials.
+    // These columns are added via spring.jpa.hibernate.ddl-auto=update
+    // so no manual migration needed.
 
-    public Long getId() {
-        return id;
-    }
+    private String fullName;       // Reporter's real name
+    private String email;          // Contact email
+    private String phone;          // Contact phone
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String planId;         // basic | pro | elite
+    private String planName;       // Field Reporter | Senior Correspondent | Bureau Correspondent
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String photoUrl;       // Profile photo — S3 URL or base64
 }

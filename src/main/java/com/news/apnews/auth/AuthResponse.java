@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponse {
-    private String token;
+    private String   token;
     private UserInfo user;
 
     @Data
@@ -18,7 +18,12 @@ public class AuthResponse {
         private Long   id;
         private String username;
         private String role;
-        private String fullName;   // reporter's real name
-        private String planName;   // Field Reporter | Senior Correspondent | Bureau Correspondent
+        private String fullName;
+        private String email;
+        private String phone;
+        private String planId;
+        private String planName;
+        private String photoUrl;
+        private boolean enabled;
     }
 }

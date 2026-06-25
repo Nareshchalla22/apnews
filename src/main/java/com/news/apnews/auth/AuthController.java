@@ -18,41 +18,60 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired private AuthenticationManager authManager;
-    @Autowired private JwtUtil jwtUtil;
-    @Autowired private AppUserRepository userRepo;
+    @Autowired private AuthenticationManager         authManager;
+    @Autowired private JwtUtil                       jwtUtil;
+    @Autowired private AppUserRepository             userRepo;
     @Autowired private ReporterApplicationRepository reporterRepo;
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder               passwordEncoder;
 
-    // ── LOGIN ──────────────────────────────────────────────────────────────────
+    // ── Helper: build full UserInfo from AppUser ──────────────────────────────
+    private Map<String, Object> buildUserInfo(AppUser u) {
+        return Map.ofEntries(
+            Map.entry("id",       u.getId()),
+            Map.entry("username", u.getUsername()),
+            Map.entry("role",     u.getRole()),
+            Map.entry("fullName", u.getFullName()  != null ? u.getFullName()  : ""),
+            Map.entry("email",    u.getEmail()     != null ? u.getEmail()     : ""),
+            Map.entry("phone",    u.getPhone()     != null ? u.getPhone()     : ""),
+            Map.entry("planId",   u.getPlanId()    != null ? u.getPlanId()    : ""),
+            Map.entry("planName", u.getPlanName()  != null ? u.getPlanName()  : ""),
+            Map.entry("photoUrl", u.getPhotoUrl()  != null ? u.getPhotoUrl()  : ""),
+            Map.entry("enabled",  u.isEnabled())
+        );
+    }
+
+    // ── LOGIN ─────────────────────────────────────────────────────────────────
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
         try {
-            Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+            authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    req.getUsername(), req.getPassword())
             );
 
-            AppUser user = userRepo.findByUsername(req.getUsername()).orElseThrow();
-            String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+            AppUser user  = userRepo.findByUsername(req.getUsername()).orElseThrow();
+            String  token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
-            return ResponseEntity.ok(new AuthResponse(
-                token,
-                new AuthResponse.UserInfo(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getRole(),
-                    user.getFullName(),
-                    user.getPlanName()
-                )
+            // Return token + FULL user profile so frontend can show
+            // reporter name, Press ID card, plan info, photo etc.
+            return ResponseEntity.ok(Map.of(
+                "token", token,
+                "user",  buildUserInfo(user)
             ));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401)
                 .body(Map.of("message", "Invalid username or password"));
+        } catch (DisabledException e) {
+            return ResponseEntity.status(403)
+                .body(Map.of("message", "Account is disabled. Contact admin."));
+        } catch (LockedException e) {
+            return ResponseEntity.status(403)
+                .body(Map.of("message", "Account is locked. Contact admin."));
         }
     }
 
-    // ── REGISTER (admin use only) ───────────────────────────────────────────────
+    // ── REGISTER (admin use only) ─────────────────────────────────────────────
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AppUser newUser) {
         if (userRepo.findByUsername(newUser.getUsername()).isPresent()) {
@@ -64,41 +83,38 @@ public class AuthController {
             newUser.setRole("REPORTER");
         }
         AppUser saved = userRepo.save(newUser);
-        return ResponseEntity.ok(Map.of(
-            "id",       saved.getId(),
-            "username", saved.getUsername(),
-            "role",     saved.getRole()
-        ));
+        return ResponseEntity.ok(buildUserInfo(saved));
     }
 
-    // ── ACTIVATE REPORTER ───────────────────────────────────────────────────────
-    // Called when admin approves a reporter application — creates login credentials
+    // ── ACTIVATE REPORTER ─────────────────────────────────────────────────────
     @PostMapping("/activate-reporter/{applicationId}")
     public ResponseEntity<?> activateReporter(
             @PathVariable Long applicationId,
-            @RequestBody Map<String, String> body) {
+            @RequestBody   Map<String, String> body) {
 
-        ReporterApplication app = reporterRepo.findById(applicationId)
-            .orElse(null);
-        if (app == null) {
-            return ResponseEntity.notFound().build();
-        }
+        ReporterApplication app = reporterRepo.findById(applicationId).orElse(null);
+        if (app == null) return ResponseEntity.notFound().build();
+
         if (!"APPROVED".equals(app.getStatus())) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", "Application must be APPROVED before activating"));
+                .body(Map.of("message",
+                    "Application must be APPROVED before activating"));
         }
 
+        // Auto-generate credentials if not provided
         String username = body.getOrDefault("username",
             app.getFullName().toLowerCase().replaceAll("\\s+", "."));
         String password = body.getOrDefault("password",
-            "AP13@" + app.getTxnId().substring(app.getTxnId().length() - 6));
+            "AP13@" + app.getTxnId()
+                .substring(Math.max(0, app.getTxnId().length() - 6)));
 
-        // Check if user already exists
         if (userRepo.findByUsername(username).isPresent()) {
             return ResponseEntity.badRequest()
-                .body(Map.of("message", "Username '" + username + "' already taken. Provide a different one."));
+                .body(Map.of("message",
+                    "Username '" + username + "' already taken."));
         }
 
+        // Build reporter account — copy ALL profile data from application
         AppUser reporter = new AppUser();
         reporter.setUsername(username);
         reporter.setPassword(passwordEncoder.encode(password));
@@ -109,35 +125,32 @@ public class AuthController {
         reporter.setPhone(app.getPhone());
         reporter.setPlanId(app.getPlanId());
         reporter.setPlanName(app.getPlanName());
+        reporter.setPhotoUrl(app.getPhotoUrl()); // for Press ID card photo
 
         userRepo.save(reporter);
 
         return ResponseEntity.ok(Map.of(
             "message",  "Reporter account created successfully",
             "username", username,
-            "password", password,   // shown once — admin shares this with reporter
+            "password", password,  // shown once — admin shares with reporter
             "role",     "REPORTER",
-            "planName", app.getPlanName() != null ? app.getPlanName() : ""
+            "fullName", app.getFullName()  != null ? app.getFullName()  : "",
+            "planName", app.getPlanName()  != null ? app.getPlanName()  : "",
+            "planId",   app.getPlanId()    != null ? app.getPlanId()    : ""
         ));
     }
 
-    // ── LIST ALL USERS ──────────────────────────────────────────────────────────
+    // ── LIST ALL USERS ────────────────────────────────────────────────────────
     @GetMapping("/users")
     public ResponseEntity<?> listUsers() {
-        List<AppUser> users = userRepo.findAll();
         return ResponseEntity.ok(
-            users.stream().map(u -> Map.of(
-                "id",       u.getId(),
-                "username", u.getUsername(),
-                "role",     u.getRole(),
-                "fullName", u.getFullName() != null ? u.getFullName() : "",
-                "planName", u.getPlanName() != null ? u.getPlanName() : "",
-                "enabled",  u.isEnabled()
-            )).toList()
+            userRepo.findAll().stream()
+                .map(this::buildUserInfo)
+                .toList()
         );
     }
 
-    // ── TOGGLE USER ENABLED ─────────────────────────────────────────────────────
+    // ── TOGGLE USER ENABLED ───────────────────────────────────────────────────
     @PatchMapping("/users/{id}/toggle")
     public ResponseEntity<?> toggleUser(@PathVariable Long id) {
         return userRepo.findById(id).map(u -> {
@@ -151,14 +164,11 @@ public class AuthController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    // ── ME ──────────────────────────────────────────────────────────────────────
+    // ── ME — returns current logged-in user's full profile ────────────────────
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication auth) {
         if (auth == null) return ResponseEntity.status(401).build();
         AppUser user = userRepo.findByUsername(auth.getName()).orElseThrow();
-        return ResponseEntity.ok(new AuthResponse.UserInfo(
-            user.getId(), user.getUsername(), user.getRole(),
-            user.getFullName(), user.getPlanName()
-        ));
+        return ResponseEntity.ok(buildUserInfo(user));
     }
 }
