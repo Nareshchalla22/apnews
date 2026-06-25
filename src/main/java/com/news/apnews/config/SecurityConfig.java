@@ -72,11 +72,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
 
                 // Public ads
-                .requestMatchers(HttpMethod.GET, "/api/ads/active").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/ads/placement/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/ads/type/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/ads/*/impression").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/ads/*/click").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/ads/**").permitAll()
+                // .requestMatchers(HttpMethod.GET, "/api/ads/placement/**").permitAll()
+                // .requestMatchers(HttpMethod.GET, "/api/ads/type/**").permitAll()
+                // .requestMatchers(HttpMethod.POST, "/api/ads/*/impression").permitAll()
+                // .requestMatchers(HttpMethod.POST, "/api/ads/*/click").permitAll()
 
                 // Public reporter application submit
                 .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
