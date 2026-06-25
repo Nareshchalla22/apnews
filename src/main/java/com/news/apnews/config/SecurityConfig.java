@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/technology/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/all/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
 
                 // Public ads
                 .requestMatchers(HttpMethod.GET, "/api/ads/active").permitAll()
