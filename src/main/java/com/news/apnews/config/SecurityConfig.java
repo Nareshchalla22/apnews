@@ -72,11 +72,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
 
                 // Public ads
-                .requestMatchers(HttpMethod.GET, "/api/ads/**").permitAll()
-                // .requestMatchers(HttpMethod.GET, "/api/ads/placement/**").permitAll()
-                // .requestMatchers(HttpMethod.GET, "/api/ads/type/**").permitAll()
-                // .requestMatchers(HttpMethod.POST, "/api/ads/*/impression").permitAll()
-                // .requestMatchers(HttpMethod.POST, "/api/ads/*/click").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/ads/active").permitAll()
+.requestMatchers(HttpMethod.GET, "/api/ads/placement/**").permitAll()
+.requestMatchers(HttpMethod.GET, "/api/ads/type/**").permitAll()
+.requestMatchers(HttpMethod.POST, "/api/ads/*/impression").permitAll()
+.requestMatchers(HttpMethod.POST, "/api/ads/*/click").permitAll()
+.requestMatchers("/api/ads/**").hasRole("ADMIN")
 
                 // Public reporter application submit
                 .requestMatchers(HttpMethod.POST, "/api/reporter-application").permitAll()
@@ -115,17 +116,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-            "https://ap13news.in",
-            "https://www.ap13news.in",
-            "https://api.ap13news.in",
-            "https://*.amplifyapp.com",
-            "http://localhost:*",
-            "http://127.0.0.1:*",
-            "https://18.61.229.102.nip.io"   // keep for backward compat
+                "https://ap13news.in",
+                "https://www.ap13news.in",
+                "https://api.ap13news.in",
+                "https://*.amplifyapp.com",
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "https://18.61.229.102.nip.io" // keep for backward compat
         ));
         config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
-        ));
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
