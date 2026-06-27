@@ -39,7 +39,6 @@ public class AppUser {
     private String planId;         // basic | pro | elite
     private String planName;       // Field Reporter | Senior Correspondent | Bureau Correspondent
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String photoUrl;       // Profile photo — S3 URL or base64
 }

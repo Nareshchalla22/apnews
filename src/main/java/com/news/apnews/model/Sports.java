@@ -25,7 +25,7 @@ public class Sports {
 
     private String scoreUpdate;
 
-    @Lob
+    
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }

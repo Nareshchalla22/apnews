@@ -19,7 +19,7 @@ public class Politics {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String description;
-    @Lob
+
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String reporterName;

@@ -15,7 +15,7 @@ public class Global {
     
     @Column(columnDefinition = "TEXT")
     private String description;
-    @Lob
+
    @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String date;

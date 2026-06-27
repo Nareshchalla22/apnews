@@ -14,7 +14,7 @@ public class International {
     private String headline;
     @Column(columnDefinition = "TEXT")
     private String globalReport;
-    @Lob
+
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String sourceAgency; // e.g., Reuters, AP

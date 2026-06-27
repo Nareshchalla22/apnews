@@ -21,7 +21,7 @@ public class Health {
     @Column(columnDefinition = "TEXT")
     private String medicalAdvice;
     private String doctorConsultant;
-    @Lob
+  
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }

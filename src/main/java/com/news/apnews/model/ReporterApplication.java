@@ -36,7 +36,6 @@ public class ReporterApplication {
     private Integer amount;
     private String txnId;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String paymentProof;   // Base64 screenshot
 

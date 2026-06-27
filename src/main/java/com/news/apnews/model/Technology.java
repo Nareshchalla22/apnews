@@ -20,7 +20,7 @@ public class Technology {
     @Column(columnDefinition = "TEXT")
     private String techReview;
     private String version;
-    @Lob
+
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
 }

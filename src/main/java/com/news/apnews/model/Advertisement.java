@@ -38,7 +38,6 @@ public class Advertisement {
     private String accentColor;     // hex color e.g. #3b82f6
     private String bgColor;         // hex color e.g. #0a1628
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String imageUrl;        // S3 URL or base64
 
