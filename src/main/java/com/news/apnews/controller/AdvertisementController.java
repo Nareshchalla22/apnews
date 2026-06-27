@@ -28,6 +28,7 @@ public class AdvertisementController {
     @GetMapping("/active")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Advertisement>> getActive() {
+        System.out.println("Fetching active and scheduled ads at " + LocalDateTime.now());
         return ResponseEntity.ok(adRepo.findActiveAndScheduled(LocalDateTime.now()));
     }
 
