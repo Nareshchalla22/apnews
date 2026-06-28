@@ -133,6 +133,7 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
             "https://ap13news.in",
             "https://www.ap13news.in",
+            "https://api.ap13news.in",
             "https://*.amplifyapp.com",
             "http://localhost:*",
             "http://127.0.0.1:*"
