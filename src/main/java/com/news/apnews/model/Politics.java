@@ -22,6 +22,11 @@ public class Politics {
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
+
+    // JSON array of image URLs, e.g. ["https://...a.jpg","https://...b.jpg"].
+    // imageUrl stays as the cover (first) image for backward compatibility.
+    @Column(columnDefinition = "TEXT")
+    private String imageUrls;
     private String reporterName;
     private String date = java.time.LocalDate.now().toString();
 }

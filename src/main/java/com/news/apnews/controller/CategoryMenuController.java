@@ -45,6 +45,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return globalRepo.save(e);
     }
 
@@ -69,6 +70,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return nationalRepo.save(e);
     }
 
@@ -91,6 +93,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return stateRepo.save(e);
     }
 
@@ -116,6 +119,8 @@ public class CategoryMenuController {
         e.setHeadline(d.getHeadline());
         e.setAnalysis(d.getAnalysis());
         e.setStockUpdate(d.getStockUpdate());
+        e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return businessRepo.save(e);
     }
 
@@ -138,6 +143,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return crimeRepo.save(e);
     }
 
@@ -162,6 +168,8 @@ public class CategoryMenuController {
         e.setMovieTitle(d.getMovieTitle());
         e.setCelebrityName(d.getCelebrityName());
         e.setGossipContent(d.getGossipContent());
+        e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return entertainmentRepo.save(e);
     }
 
@@ -185,6 +193,7 @@ public class CategoryMenuController {
         e.setSummary(d.getSummary());
         e.setScoreUpdate(d.getScoreUpdate());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return sportsRepo.save(e);
     }
 
@@ -209,6 +218,7 @@ public class CategoryMenuController {
         e.setMedicalAdvice(d.getMedicalAdvice());
         e.setDoctorConsultant(d.getDoctorConsultant());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return healthRepo.save(e);
     }
 
@@ -233,6 +243,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return politicsRepo.save(e);
     }
 
@@ -255,6 +266,7 @@ public class CategoryMenuController {
         e.setTitle(d.getTitle());
         e.setDescription(d.getDescription());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return travelRepo.save(e);
     }
 
@@ -280,6 +292,7 @@ public class CategoryMenuController {
         e.setTechReview(d.getTechReview());
         e.setVersion(d.getVersion());
         e.setImageUrl(d.getImageUrl());
+        e.setImageUrls(d.getImageUrls());
         return technologyRepo.save(e);
     }
 
