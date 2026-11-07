@@ -57,8 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/travel/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/technology/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/international/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/all").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/all/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/all").permitAll()                       
                         .requestMatchers(HttpMethod.GET, "/api/meta/**").permitAll()
 
                         // ── Public ads ────────────────────────────────────────────────
